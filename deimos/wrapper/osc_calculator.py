@@ -1316,8 +1316,8 @@ class OscCalculator(object) :
             self.nusquids.Set_LIVCoefficient(
                 a_nsq, 
                 c_nsq, 
-                0., # RA (not used for time-like operators) 
-                0., # dec (not used for time-like operators)
+                ra_rad, 
+                dec_rad,
             )
 
         elif self.solver == "deimos" :
@@ -1985,8 +1985,7 @@ class OscCalculator(object) :
             randomize_atmo_prod_height = False #TODO support
 
             # Init results container
-            # results = np.full( (energy_GeV.size, coszen.size, final_flavors.size, 2 ), np.NaN )
-            results = np.full( (energy_GeV.size, coszen.size, final_flavors.size ), np.NaN )
+            results = np.full( (energy_GeV.size, coszen.size, final_flavors.size ), np.nan )  #NumPy version 2.2.4: np.NaN -> np.nan 
 
             # Determine shape of initial state vector in nuSQuIDS
             state_shape = [ self.nusquids.GetNumCos(), self.nusquids.GetNumE() ]
@@ -2033,8 +2032,7 @@ class OscCalculator(object) :
         else :
 
             # Init results container
-            results = np.full( (energy_GeV.size, distance_km.size, final_flavors.size), np.NaN )
-            # results = np.full( (energy_GeV.size, distance_km.size, final_flavors.size, 2), np.NaN )
+            results = np.full( (energy_GeV.size, distance_km.size, final_flavors.size), np.nan )  #NumPy version 2.2.4: np.NaN -> np.nan
 
             # Determine shape of initial state vector in nuSQuIDS
             state_shape = [ self.nusquids.GetNumE() ]

@@ -943,7 +943,7 @@ class DensityMatrixOscSolver(object) :
                         print(r)
 
             # Get oscillation probabilties for each final state flavor
-            osc_probs = np.full( (len(L),len(states),), np.NaN ) # Indexing [L value, final state flavor]
+            osc_probs = np.full( (len(L),len(states),), np.nan ) # Indexing [L value, final state flavor]
             for i_L in range(0,len(L)) :
                 for i_f,final_flav in enumerate(states) :
                     osc_probs[i_L,i_f] = rho_flavor_prob(solved_rho_flav[i_L,...],final_flav)

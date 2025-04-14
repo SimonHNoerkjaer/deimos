@@ -49,7 +49,7 @@ if __name__ == "__main__" :
     
 
     # Choose solver (nusquids or deimos)
-    solver = "deimos"
+    solver = args.solver
 
     # Create calculators
     # For nuSQuIDS case, need to specify energy nodes covering full space
@@ -394,4 +394,4 @@ if __name__ == "__main__" :
     #
 
     print("")
-    dump_figures_to_pdf( __file__.replace(".py",".pdf") )
+    dump_figures_to_pdf( __file__.replace(".py","_" + solver + ".pdf") )
