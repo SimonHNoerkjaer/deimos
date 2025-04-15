@@ -39,7 +39,7 @@ export PYTHONPATH=<path/to/install/location>/deimos:$PYTHONPATH
 ```
 
 
-## Integrating external tools
+## External integrating tools
 
 *Note that this section is optional.*
 
@@ -55,7 +55,7 @@ DEIMOS will activate support for these features (at run-time) if they are availa
 
 ### External tool installation helper script
 
-Alternatively, a script for installing these external tools within a conda environment is available and can be run as follows. However, note that this is in beta, and may not work for all operating systems or tool/package versions (in which, manually installing the external tools as per their documentation is recommended).
+Alternatively, a script for installing these external tools within a conda environment is available and can be run as follows. However, note that this is in beta, and may not work for all operating systems or tool/package versions (in which, manually installing the external tools as per their documentation is recommended). As external packages are developed in non-python languages such as C++, make sure to have the required compilers installed (on Ubuntu/Debian by running `sudo apt install build-essential`)
 
 ```
 cd <path/to/install/location>/deimos
@@ -90,8 +90,10 @@ See the following examples to guide how to use DEIMOS and the assoicated wrapper
   * `deimos/models/decoherence/plot_reactor_and_lbl_decoherence.py` - plot decoherence in long-baseline and reactor experiments
   * `deimos/models/decoherence/plot_atmo_decoherence.py` - plot decoherence in atmospheric neutrinos (2D oscillogram)
 
-* Lorentz Invariance Violation
-  * `deimos/models/liv/plot_sme.py` - plot modified oscillations due to isotropic Standard Model Extension coefficients
+* Lorentz Invariance Violation (phenomenology paper on the way)
+  * `deimos/models/liv/plot_sme_isotropic.py` - plot modified oscillations due to isotropic Standard Model Extension coefficients
   * `deimos/models/liv/plot_sme_sidereal.py` - plot modified oscillations due to non-isotropic Standard Model Extension coefficients, such as sidereal modulations
+  * `deimos/models/liv/paper_plots/...` - plotting scripts used for paper phenomenology paper
+  * `deimos/models/liv/reproduce_external_plots.py` - reproduce plots from other litterature 
 
 
