@@ -8,6 +8,7 @@ Edited by Johann Ioannou-Nikolaides based on a script by Simon Hilding-Nørkjær
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from deimos.utils.plotting import *
 from deimos.wrapper.osc_calculator import OscCalculator
 from deimos.utils.oscillations import calc_path_length_from_coszen
 from deimos.models.liv.sme import get_sme_state_matrix
@@ -20,7 +21,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
-    parser.add_argument("-n", "--num-points", type=int, required=False, default=250, help="Num scan point")
+    parser.add_argument("-n", "--num-points", type=int, required=False, default=25, help="Num scan point")
     args = parser.parse_args()
 
     #
@@ -149,9 +150,12 @@ def main():
     fig.suptitle(fr"SME: {a_label}, {c_label} // E = {E_GeV} GeV // Matter: {matter.title()}", fontsize=16)
 
     # Save the figure
-    plt.savefig(__file__.replace(".py", ".pdf"), bbox_inches='tight')
-    print("Dumped file to", __file__.replace(".py", ".pdf"))
+    # plt.savefig(__file__.replace(".py", ".pdf"), bbox_inches='tight')
+    # print("Dumped file to", __file__.replace(".py", ".pdf"))
 
+
+    print("")
+    dump_figures_to_pdf( __file__.replace(".py","_" + args.solver + ".pdf") )
 
 if __name__ == "__main__":
     main()

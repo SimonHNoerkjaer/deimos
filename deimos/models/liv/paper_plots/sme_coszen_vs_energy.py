@@ -111,7 +111,7 @@ def set_sme(a_magnitude_eV = 2e-13, c_magnitude = 0, flavor_structure = np.array
 #
 
 
-solver = "deimos" # "nusquids" or "deimos
+solver = "nusquids" # "nusquids" or "deimos
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--solver", type=str, required=False, default=solver, help="Solver name")
 args = parser.parse_args()

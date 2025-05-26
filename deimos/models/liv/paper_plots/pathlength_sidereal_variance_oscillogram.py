@@ -30,7 +30,7 @@ if __name__ == "__main__" :
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
-    parser.add_argument("-n", "--num-points", type=int, required=False, default=100, help="Num scan point")
+    parser.add_argument("-n", "--num-points", type=int, required=False, default=25, help="Num scan point")
     args = parser.parse_args()
 
 

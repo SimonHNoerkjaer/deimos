@@ -27,7 +27,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
-    parser.add_argument("-n", "--num-points", type=int, required=False, default=100, help="Num scan points")
+    parser.add_argument("-n", "--num-points", type=int, required=False, default=25, help="Num scan points")
     args = parser.parse_args()
 
 
@@ -233,8 +233,9 @@ if __name__ == "__main__":
         ax[0,0].plot([], [], color="red", alpha=alpha, lw=linewidth, linestyle=None, label="Inner core")
         fig.legend(loc="upper center", fontsize=12, ncol=5, bbox_to_anchor=(0.5, 0.93))
 
-    # Save the figure
+
+   # Save the figure
     print("")
-    dump_figures_to_pdf( __file__.replace(".py",".pdf") )
+    dump_figures_to_pdf( __file__.replace(".py","_" + args.solver + ".pdf") )
 
     # Done

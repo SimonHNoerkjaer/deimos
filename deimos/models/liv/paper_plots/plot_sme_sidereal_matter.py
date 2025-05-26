@@ -27,7 +27,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
-    parser.add_argument("-n", "--num-points", type=int, required=False, default=100, help="Num scan points")
+    parser.add_argument("-n", "--num-points", type=int, required=False, default=25, help="Num scan points")
+    parser.add_argument("-m", "--matter", type=str, required=False, default="vacuum", help="Matter effects: vacuum or earth")
     args = parser.parse_args()
 
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     ARCA_calculator = OscCalculator(solver=args.solver, atmospheric=True, **kw)
 
     # Set matter effects and detectors
-    matter = "vacuum" # "earth" or "vacuum"
+    matter = args.matter # "earth"(only nuSQuIDS) or "vacuum"
     IC_calculator.set_matter(matter)
     IC_calculator.set_detector("icecube")
     ARCA_calculator.set_matter(matter)
@@ -65,11 +66,13 @@ if __name__ == "__main__":
     sme_basis = REF_SME_BASIS
 
     # Define "a" operator (magnitude and state texture)
-    a_magnitude_eV = REF_SME_a_MAGNITUDE_eV
+    # a_magnitude_eV = REF_SME_a_MAGNITUDE_eV
+    a_magnitude_eV = 0
     a_mu_eV = get_sme_state_matrix(p33=a_magnitude_eV) # Choosing 33 element as only non-zero element in germs of flavor
 
     # Define "c" operator (magnitude and state texture)
-    c_magnitude = 0
+    c_magnitude = REF_SME_c_MAGNITUDE
+    # c_magnitude = 0
     c_t_nu = get_sme_state_matrix(p33=c_magnitude) # Choosing 33 element as only non-zero element in germs of flavor
 
     # Choose direction (sticking to axis directions for simplicity here)
@@ -221,7 +224,8 @@ if __name__ == "__main__":
         fig.legend(loc="upper center", fontsize=12, ncol=5, bbox_to_anchor=(0.5, 0.93))
  
     # Save the figure
+
     print("")
-    dump_figures_to_pdf( __file__.replace(".py",".pdf") )
+    dump_figures_to_pdf( __file__.replace(".py","_" + args.solver + "_" + args.matter + "_c" +".pdf"))
 
     # Done

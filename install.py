@@ -298,3 +298,33 @@ if __name__ == "__main__" :
 
     # Install DEIMOS
     install_deimos()
+
+
+
+    # setup path to .so files 
+    # This is needed for the C++ code to find the shared object files
+
+    # alternative to writing the following terminal commands:
+    # mkdir -p $CONDA_PREFIX/etc/conda/activate.d
+    # mkdir -p $CONDA_PREFIX/etc/conda/deactivate.d
+    # echo 'export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH' > $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+    # echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH#"$CONDA_PREFIX/lib:"}' > $CONDA_PREFIX/etc/conda/deactivate.d/env_vars.sh
+
+    import os
+    prefix = os.environ["CONDA_PREFIX"]
+
+    activate_path = os.path.join(prefix, "etc", "conda", "activate.d")
+    deactivate_path = os.path.join(prefix, "etc", "conda", "deactivate.d")
+
+    os.makedirs(activate_path, exist_ok=True)
+    os.makedirs(deactivate_path, exist_ok=True)
+
+    with open(os.path.join(activate_path, "env_vars.sh"), "w") as f:
+        f.write("#!/bin/sh\n")
+        f.write("export LD_LIBRARY_PATH=\"$CONDA_PREFIX/lib:$LD_LIBRARY_PATH\"\n")
+
+    with open(os.path.join(deactivate_path, "env_vars.sh"), "w") as f:
+        f.write("#!/bin/sh\n")
+        f.write("export LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH#\"$CONDA_PREFIX/lib:\"}\"\n")
+
+ 

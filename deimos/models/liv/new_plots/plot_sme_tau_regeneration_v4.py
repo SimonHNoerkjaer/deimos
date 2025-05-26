@@ -22,7 +22,7 @@ if __name__ == "__main__":
     #
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
+    parser.add_argument("-s", "--solver", type=str, required=False, default="nusquids", help="Solver name")
     parser.add_argument("-n", "--num-points", type=int, required=False, default=100, help="Num scan points")
     args = parser.parse_args()
 
@@ -32,18 +32,18 @@ if __name__ == "__main__":
     #
 
     initial_flavor = 1  # 1 corresponds to numu
-    final_flavor = 1
+    final_flavors = (0,1,2)
     nubar = False  # False for neutrino, True for antineutrino
 
-    E_values_GeV = np.geomspace(1., 1e5, num=args.num_points)
+    E_values_GeV = np.geomspace(1e2, 1e7, num=args.num_points)
 
     detector = "IceCube"
     ra_deg = 30.
-    dec_deg = +80. # Upgoing for IceCube
+    dec_deg = +75. # Upgoing for IceCube
 
     time = REF_TIME
 
-    matter = "vacuum" # "earth" or "vacuum"
+    matter = "earth" # "earth" or "vacuum"
 
 
     #
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     a_mu_eV = get_sme_state_matrix(p33=a_magnitude_eV) # Choosing 33 element as only non-zero element in germs of flavor
 
     # Define "c" operator (magnitude and state texture)
-    c_magnitude = REF_SME_c_MAGNITUDE
+    c_magnitude = 0.#REF_SME_c_MAGNITUDE
     c_t_nu = get_sme_state_matrix(p33=c_magnitude) # Choosing 33 element as only non-zero element in germs of flavor
 
     # Choose direction (sticking to axis directions for simplicity here)
@@ -82,26 +82,25 @@ if __name__ == "__main__":
     calculator.set_detector(detector)
 
 
-    #
-    # Loop over cases
-    #
-
-    # Define cases
-    cases = collections.OrderedDict()
-    cases["No SME"] = { "sme_params":None, "color":"black" }
-    cases[r"$a^{%s}_{33}$ = %s eV" % (liv_direction, get_number_tex(a_magnitude_eV))] = { "sme_params":{ "basis":sme_basis, ("a_%s_eV"%liv_direction):a_mu_eV}, "color":"orange" }
-    cases[r"$c^{%s}_{33}$ = %s" % (liv_direction, get_number_tex(c_magnitude))] = { "sme_params":{ "basis":sme_basis, ("c_t%s"%liv_direction):c_t_nu}, "color":"dodgerblue" }
 
     # Create the figure and axis objects
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(8, 6))
     fig.suptitle(fr"{detector} // Matter: {matter.title()} // $\alpha,\delta$ = {int(ra_deg)},{int(dec_deg)} deg // {time}", fontsize=10)
 
-    # Loop over cases
-    for case_label, case in cases.items() :
+    linestyles = ["-", "--", "-.", ":"]
+    
+    for i, final_flavor in enumerate(final_flavors):
+        if final_flavor == 0: label = r"$\nu_e$"
+        elif final_flavor == 1: label = r"$\nu_\mu$"
+        elif final_flavor == 2: label = r"$\nu_\tau$"
 
         # Calculate oscillation probabilities
-        sme_kw = {"std_osc":True} if case["sme_params"] is None else {"std_osc":False, "sme_params":case["sme_params"]}
-        osc_probs, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(
+        sme_kw = {"sme_params":
+                {"a_%s_eV"%liv_direction : a_mu_eV,
+                    "c_t%s"%liv_direction : c_t_nu,
+                    "basis":sme_basis}}
+        
+        osc_probs_sme, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(
             initial_flavor=initial_flavor,
             nubar=nubar,
             energy_GeV=E_values_GeV,
@@ -111,15 +110,34 @@ if __name__ == "__main__":
             **sme_kw
         )
 
-        # Plot osc probs
-        ax.plot(E_values_GeV, osc_probs[:,final_flavor], color=case["color"], label=case_label, lw=3)
+        # STD oscillation probabilities
+        std_kw = {"sme_params":
+                {"a_%s_eV"%liv_direction : np.zeros_like(a_mu_eV),
+                    "c_t%s"%liv_direction : np.zeros_like(c_t_nu),
+                    "basis":sme_basis}}
+        
+        osc_probs_std, coszen_values, azimuth_values_std = calculator.calc_osc_prob_sme_directional_atmospheric(
+            initial_flavor=initial_flavor,
+            nubar=nubar,
+            energy_GeV=E_values_GeV,
+            ra_rad=np.deg2rad(ra_deg),
+            dec_rad=np.deg2rad(dec_deg),
+            time=time,
+            **std_kw
+        )
+        
+        flux_ratios = osc_probs_sme[:,final_flavor] / osc_probs_std[:,final_flavor]
+
+        ax.plot(E_values_GeV, flux_ratios, linestyle=linestyles[i], label=label)
+    # ax.plot(E_values_GeV, flux_ratios[:,1], linestyle="-", color="dodgerblue", label=r"$\nu_\mu$")
+    # ax.plot(E_values_GeV, flux_ratios[:,2], linestyle="-", color="green", label=r"$\nu_\tau$")
+
 
     # Format plot
+    ax.set_title(rf"Initial flavor: ${calculator.get_nu_flavor_tex(initial_flavor, nubar=nubar)}$", fontsize=12)
+    ax.set_ylim(0., 100)
     ax.set_xlabel(ENERGY_LABEL, fontsize=14)
     ax.set_xscale("log")
-    ax.set_xlim(E_values_GeV[0], E_values_GeV[-1])
-    ax.set_ylabel(r"$%s$"%calculator.get_transition_prob_tex(initial_flavor, final_flavor, nubar), fontsize=14)
-    ax.set_ylim(-0.03, 1.03)
     ax.tick_params(labelsize=12)
     ax.grid(True)
     ax.legend(fontsize=12, loc="lower right")

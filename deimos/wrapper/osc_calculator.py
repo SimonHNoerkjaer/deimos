@@ -1977,7 +1977,7 @@ class OscCalculator(object) :
 
         Returned result has following structure: [ energy, coszen, final flavor ]
         '''
-
+        print("nusquids: called") 
 
         #
         # Prepare
@@ -2012,7 +2012,7 @@ class OscCalculator(object) :
         #
 
         if self.atmospheric :
-
+            # print("nusquids: amtrospheric True") 
             randomize_atmo_prod_height = False #TODO support
 
             # Init results container
@@ -2040,19 +2040,21 @@ class OscCalculator(object) :
                             np.copyto(src=input_initial_state[:,:,f], dst=initial_state[:,:,r,f])
             assert initial_state.shape == state_shape, "Wrong shape for initial state"
 
+            # print("nusquids: passed shape check") 
             # Set the intial state
             self.nusquids.Set_initial_state(initial_state, nsq.Basis.flavor)
-
+            # print("nusquids: set initial state")
             # Evolve the state
             self.nusquids.EvolveState()
+            # print("nusquids: evolved state")
 
+            
             # Evaluate the flavor at each grid point to get oscillation probabilities
             for i_E,E in enumerate(energy_GeV) :
                 for i_cz,cz in enumerate(coszen) :
                     for i_f,final_flavor in enumerate(final_flavors) :
                         # results[i_E,i_cz,i_f] = self.nusquids.EvalFlavor( final_flavor, cz, E*self.units.GeV )#, rho ) #TODO Add randomize prod height arg
                         results[i_E,i_cz,i_f] = self.nusquids.EvalFlavor( int(final_flavor), cz, E*self.units.GeV, int(rho), randomize_atmo_prod_height) #TODO add nubar
-
             return results
 
 

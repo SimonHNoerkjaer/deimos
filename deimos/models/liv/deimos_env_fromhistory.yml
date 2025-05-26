@@ -1,0 +1,12 @@
+name: deimos_env
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.12.9
+  - boost
+  - gsl
+  - hdf5
+  - numpy
+  - ipykernel
+prefix: /home/shilding/anaconda3/envs/deimos_env

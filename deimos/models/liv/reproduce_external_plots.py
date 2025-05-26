@@ -580,7 +580,10 @@ if __name__ == "__main__" :
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--solver", type=str, required=False, default="deimos", help="Solver name")
     parser.add_argument("-n", "--num-points", type=int, required=False, default=1000, help="Num scan point")
+    parser.add_argument("-b", "--basis", type=int, required=False, default="mass", help="SME basis")
     args = parser.parse_args()
+
+    print(args.basis)
 
 
     #

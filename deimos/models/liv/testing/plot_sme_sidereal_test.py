@@ -82,6 +82,8 @@ if __name__ == "__main__" :
     # Defining SME operators in mass basis, with a single non-zero element (33)
     sme_basis = "mass"
     a_eV = get_sme_state_matrix(p33=1e-13)
+    c = get_sme_state_matrix(p33=1e-26)
+    
 
     # Also need to choose a direction for the LIV field
     sme_params = {
@@ -89,6 +91,7 @@ if __name__ == "__main__" :
         "a_x_eV" : a_eV, # x dir
         # "a_y_eV" : a_eV, # y dir
         # "a_z_eV" : a_eV, # z dir
+        "c_tx" : c, # x dir
     }
 
     #
@@ -151,114 +154,114 @@ if __name__ == "__main__" :
 
 
 
-    #
-    # Plot oscillations vs neutrino direction from detector's perspective, over the course of a day
-    #
+    # #
+    # # Plot oscillations vs neutrino direction from detector's perspective, over the course of a day
+    # #
 
-    # Define neutrino
-    ra_deg, dec_deg = ref_ra_deg, ref_dec_deg
-    E_GeV = ref_E_GeV
+    # # Define neutrino
+    # ra_deg, dec_deg = ref_ra_deg, ref_dec_deg
+    # E_GeV = ref_E_GeV
 
-    # Time scan
-    hr_values = np.linspace(0., SIDEREAL_DAY_hr, num=48) # One sidereal day
-    time_values = [ ref_time + datetime.timedelta(hours=hr)  for hr in hr_values ]
+    # # Time scan
+    # hr_values = np.linspace(0., SIDEREAL_DAY_hr, num=48) # One sidereal day
+    # time_values = [ ref_time + datetime.timedelta(hours=hr)  for hr in hr_values ]
 
-    # Define common args to osc prob calc
-    common_calc_kw = {
-        "initial_flavor":initial_flavor,
-        "nubar" : nubar,
-        "energy_GeV" : E_GeV,
-        "ra_rad" : np.deg2rad(ra_deg),
-        "dec_rad" : np.deg2rad(dec_deg),
-        "time" : time_values,
-    }
+    # # Define common args to osc prob calc
+    # common_calc_kw = {
+    #     "initial_flavor":initial_flavor,
+    #     "nubar" : nubar,
+    #     "energy_GeV" : E_GeV,
+    #     "ra_rad" : np.deg2rad(ra_deg),
+    #     "dec_rad" : np.deg2rad(dec_deg),
+    #     "time" : time_values,
+    # }
 
-    # Get std osc probs
-    P_std, _, _ = calculator.calc_osc_prob_sme_directional_atmospheric(std_osc=True, **common_calc_kw)
+    # # Get std osc probs
+    # P_std, _, _ = calculator.calc_osc_prob_sme_directional_atmospheric(std_osc=True, **common_calc_kw)
 
-    # Get LIV osc probs
-    P_sme, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(sme_params=sme_params, **common_calc_kw)
+    # # Get LIV osc probs
+    # P_sme, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(sme_params=sme_params, **common_calc_kw)
 
-    # Selected chosen final flavor
-    P_std = P_std[...,final_flavor]
-    P_sme = P_sme[...,final_flavor]
+    # # Selected chosen final flavor
+    # P_std = P_std[...,final_flavor]
+    # P_sme = P_sme[...,final_flavor]
 
-    # Make fig
-    fig, ax = plt.subplots( nrows=2, figsize=(6, 6) )
+    # # Make fig
+    # fig, ax = plt.subplots( nrows=2, figsize=(6, 6) )
 
-    fig.suptitle(args.detector)
-    # fig.suptitle( r"$E$ = %0.3g GeV // $\delta$ = %0.3g deg // %s" % (args.detector, E_GeV, dec_deg, date), fontsize=12 )  #TODO text box
+    # fig.suptitle(args.detector)
+    # # fig.suptitle( r"$E$ = %0.3g GeV // $\delta$ = %0.3g deg // %s" % (args.detector, E_GeV, dec_deg, date), fontsize=12 )  #TODO text box
     
-    # Plot osc probs
-    ax[0].plot(hr_values, P_std, color="black", linestyle="-", label="Std. osc.")
-    ax[0].plot(hr_values, P_sme, color="orange", linestyle="--", label="SME")
+    # # Plot osc probs
+    # ax[0].plot(hr_values, P_std, color="black", linestyle="-", label="Std. osc.")
+    # ax[0].plot(hr_values, P_sme, color="orange", linestyle="--", label="SME")
 
-    # Plot coszen
-    ax[1].plot(hr_values, coszen_values, color="blue", linestyle="-")
+    # # Plot coszen
+    # ax[1].plot(hr_values, coszen_values, color="blue", linestyle="-")
 
-    #TODO add second x axis with coszen 
+    # #TODO add second x axis with coszen 
 
-    # Formatting
-    for this_ax in ax :
-        this_ax.set_xlabel("t [hr]")
-        this_ax.set_xlim(hr_values[0], hr_values[-1])
-        this_ax.grid(True)
-    ax[0].set_ylabel(P_label)
-    ax[0].set_ylim(-0.01, 1.01)
-    ax[0].legend(fontsize=12)
-    ax[1].set_ylabel( "coszen" )
-    ax[1].set_ylim(-1.01, 1.01)
-    fig.tight_layout()
+    # # Formatting
+    # for this_ax in ax :
+    #     this_ax.set_xlabel("t [hr]")
+    #     this_ax.set_xlim(hr_values[0], hr_values[-1])
+    #     this_ax.grid(True)
+    # ax[0].set_ylabel(P_label)
+    # ax[0].set_ylim(-0.01, 1.01)
+    # ax[0].legend(fontsize=12)
+    # ax[1].set_ylabel( "coszen" )
+    # ax[1].set_ylim(-1.01, 1.01)
+    # fig.tight_layout()
 
 
 
-    #
-    # Plot oscillations vs energy
-    #
+    # #
+    # # Plot oscillations vs energy
+    # #
 
-    # Define neutrino
-    ra_deg, dec_deg = ref_ra_deg, ref_dec_deg
-    time = ref_time
+    # # Define neutrino
+    # ra_deg, dec_deg = ref_ra_deg, ref_dec_deg
+    # time = ref_time
 
-    # Define common args to osc prob calc
-    common_calc_kw = {
-        "initial_flavor":initial_flavor,
-        "nubar" : nubar,
-        "energy_GeV" : E_GeV_scan,
-        "ra_rad" : np.deg2rad(ra_deg),
-        "dec_rad" : np.deg2rad(dec_deg),
-        "time" : time,
-    }
+    # # Define common args to osc prob calc
+    # common_calc_kw = {
+    #     "initial_flavor":initial_flavor,
+    #     "nubar" : nubar,
+    #     "energy_GeV" : E_GeV_scan,
+    #     "ra_rad" : np.deg2rad(ra_deg),
+    #     "dec_rad" : np.deg2rad(dec_deg),
+    #     "time" : time,
+    # }
 
-    # Get std osc probs
-    P_std, _, _ = calculator.calc_osc_prob_sme_directional_atmospheric(std_osc=True, **common_calc_kw)
+    # # Get std osc probs
+    # P_std, _, _ = calculator.calc_osc_prob_sme_directional_atmospheric(std_osc=True, **common_calc_kw)
 
-    # Get LIV osc probs
-    P_sme, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(sme_params=sme_params, **common_calc_kw)
+    # # Get LIV osc probs
+    # P_sme, coszen_values, azimuth_values = calculator.calc_osc_prob_sme_directional_atmospheric(sme_params=sme_params, **common_calc_kw)
 
-    # Selected chosen final flavor
-    P_std = P_std[...,final_flavor]
-    P_sme = P_sme[...,final_flavor]
+    # # Selected chosen final flavor
+    # P_std = P_std[...,final_flavor]
+    # P_sme = P_sme[...,final_flavor]
 
-    # Make fig
-    fig, ax = plt.subplots( figsize=(6, 4) )
+    # # Make fig
+    # fig, ax = plt.subplots( figsize=(6, 4) )
 
-    fig.suptitle(args.detector)
-    # fig.suptitle( r"$E$ = %0.3g GeV // $\delta$ = %0.3g deg // %s" % (args.detector, E_GeV, dec_deg, date), fontsize=12 )  #TODO text box
+    # fig.suptitle(args.detector)
+    # # fig.suptitle( r"$E$ = %0.3g GeV // $\delta$ = %0.3g deg // %s" % (args.detector, E_GeV, dec_deg, date), fontsize=12 )  #TODO text box
     
-    # Plot osc probs
-    ax.plot(E_GeV_scan, P_std, color="black", linestyle="-", label="Std. osc.")
-    ax.plot(E_GeV_scan, P_sme, color="orange", linestyle="--", label="SME")
+    # # Plot osc probs
+    # ax.plot(E_GeV_scan, P_std, color="black", linestyle="-", label="Std. osc.")
+    # ax.plot(E_GeV_scan, P_sme, color="orange", linestyle="--", label="SME")
 
-    # Formatting
-    ax.set_xlabel(r"$E$ [GeV]")
-    ax.set_xlim(E_GeV_scan[0], E_GeV_scan[-1])
-    ax.set_xscale("log")
-    ax.grid(True)
-    ax.set_ylabel(P_label)
-    ax.set_ylim(-0.01, 1.01)
-    ax.legend(fontsize=12)
-    fig.tight_layout()
+    # # Formatting
+    # ax.set_xlabel(r"$E$ [GeV]")
+    # ax.set_xlim(E_GeV_scan[0], E_GeV_scan[-1])
+    # ax.set_xscale("log")
+    # ax.grid(True)
+    # ax.set_ylabel(P_label)
+    # ax.set_ylim(-0.01, 1.01)
+    # ax.legend(fontsize=12)
+    # fig.tight_layout()
 
 
     #
