@@ -1107,6 +1107,6 @@ if __name__ == "__main__" :
         nusquids_kw=nusquids_kw,
         prob3=args.prob3,
         prob3_kw=prob3_kw,
-        git_protocol="ssh",
+        # git_protocol="ssh",
     )
 
