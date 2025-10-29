@@ -68,21 +68,21 @@ fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
 color_e = "dodgerblue"
 color_mu = "red"
 color_tau = "green"
-alpha = 0.7
+alpha = 0.8
 
 # Plot 1: Final flux comparison (Standard vs SME)
 ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 0], linestyle="-", color=color_e, label=r"$\nu_e$ (Standard)", linewidth=2, alpha=alpha)
 ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 1], linestyle="-", color=color_mu, label=r"$\nu_\mu$ (Standard)", linewidth=2, alpha=alpha)
 ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 2], linestyle="-", color=color_tau, label=r"$\nu_\tau$ (Standard)", linewidth=2, alpha=alpha)
 #total flux
-ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_std, axis=1), linestyle="-", color="black", label=r"Total (Standard)", linewidth=2, alpha=alpha)
+# ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_std, axis=1), linestyle="-", color="black", label=r"Total (Standard)", linewidth=2, alpha=alpha)
 
 ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 0], linestyle="--", color=color_e, label=r"$\nu_e$ (SME)", linewidth=2, alpha=alpha)
 ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 1], linestyle="--", color=color_mu, label=r"$\nu_\mu$ (SME)", linewidth=2, alpha=alpha)
 ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 2], linestyle="--", color=color_tau, label=r"$\nu_\tau$ (SME)", linewidth=2, alpha=alpha)
 
 #total flux
-ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_sme, axis=1), linestyle="--", color="black", label=r"Total (SME)", linewidth=2, alpha=alpha)
+# ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_sme, axis=1), linestyle="--", color="black", label=r"Total (SME)", linewidth=2, alpha=alpha)
 
 ax1.set_ylabel(r"$E^3 \times \phi$  [GeV$^2$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$]", fontsize=12)
 ax1.set_xscale("log")
