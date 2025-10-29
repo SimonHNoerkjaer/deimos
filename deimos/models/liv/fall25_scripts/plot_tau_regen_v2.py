@@ -68,14 +68,21 @@ fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
 color_e = "dodgerblue"
 color_mu = "red"
 color_tau = "green"
-# Plot 1: Final flux comparison (Standard vs SME)
-ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 0], linestyle="-", color=color_e, label=r"$\nu_e$ (Standard)", linewidth=2)
-ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 1], linestyle="-", color=color_mu, label=r"$\nu_\mu$ (Standard)", linewidth=2)
-ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 2], linestyle="-", color=color_tau, label=r"$\nu_\tau$ (Standard)", linewidth=2)
+alpha = 0.7
 
-ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 0], linestyle="--", color=color_e, label=r"$\nu_e$ (SME)", linewidth=2)
-ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 1], linestyle="--", color=color_mu, label=r"$\nu_\mu$ (SME)", linewidth=2)
-ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 2], linestyle="--", color=color_tau, label=r"$\nu_\tau$ (SME)", linewidth=2)
+# Plot 1: Final flux comparison (Standard vs SME)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 0], linestyle="-", color=color_e, label=r"$\nu_e$ (Standard)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 1], linestyle="-", color=color_mu, label=r"$\nu_\mu$ (Standard)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 2], linestyle="-", color=color_tau, label=r"$\nu_\tau$ (Standard)", linewidth=2, alpha=alpha)
+#total flux
+ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_std, axis=1), linestyle="-", color="black", label=r"Total (Standard)", linewidth=2, alpha=alpha)
+
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 0], linestyle="--", color=color_e, label=r"$\nu_e$ (SME)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 1], linestyle="--", color=color_mu, label=r"$\nu_\mu$ (SME)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 2], linestyle="--", color=color_tau, label=r"$\nu_\tau$ (SME)", linewidth=2, alpha=alpha)
+
+#total flux
+ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_sme, axis=1), linestyle="--", color="black", label=r"Total (SME)", linewidth=2, alpha=alpha)
 
 ax1.set_ylabel(r"$E^3 \times \phi$  [GeV$^2$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$]", fontsize=12)
 ax1.set_xscale("log")
@@ -89,10 +96,24 @@ ax1.text(0.05, 1.2, f"(Det: {detector}, Dec: {dec_deg}°, Matter: {matter}, a_ma
 ratio_e = final_flux_sme[:, 0] / final_flux_std[:, 0]
 ratio_mu = final_flux_sme[:, 1] / final_flux_std[:, 1]
 ratio_tau = final_flux_sme[:, 2] / final_flux_std[:, 2]
+ratio_total = np.sum(final_flux_sme, axis=1) / np.sum(final_flux_std, axis=1)
 
-ax2.plot(E_grid, ratio_e, linestyle="-", color=color_e, label=r"$\nu_e$", linewidth=2)
-ax2.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, label=r"$\nu_\mu$", linewidth=2)
-ax2.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, label=r"$\nu_\tau$", linewidth=2)
+ax2.plot(E_grid, ratio_e, linestyle="-", color=color_e, label=r"$\nu_e$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, label=r"$\nu_\mu$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, label=r"$\nu_\tau$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_total, linestyle="-", color="black", label=r"Total", linewidth=2, alpha=alpha)
+
+#add zoom-in ax for y=0 to 10
+ax2_zoom = ax2.inset_axes([0.66, 0.25, 0.32, 0.32])
+ax2_zoom.plot(E_grid, ratio_e, linestyle="-", color=color_e, linewidth=2, alpha=alpha)
+ax2_zoom.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, linewidth=2, alpha=alpha)
+ax2_zoom.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, linewidth=2, alpha=alpha)
+ax2_zoom.plot(E_grid, ratio_total, linestyle="-", color="black", linewidth=2, alpha=alpha)
+ax2_zoom.set(ylim = (0, 2), xscale="log", ylabel=r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', title="Zoom-In")
+ax2_zoom.set_xlabel("E (GeV)", labelpad=1)
+ax2_zoom.grid(True, alpha=0.3)
+# ax2.indicate_inset_zoom(ax2_zoom, edgecolor="gray")
+
 ax2.axhline(1.0, color='black', linestyle='--', alpha=0.5, linewidth=1)
 ax2.set_ylabel(r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', fontsize=12)
 ax2.set_xlabel("E (GeV)", fontsize=12)
@@ -102,5 +123,7 @@ ax2.legend(fontsize=11)
 ax2.grid(True, alpha=0.3)
 
 fig.tight_layout()
+
+
 # Save the figure
 plt.savefig(f"tau_regeneration_flux_comparison_{a_magnitude:.1e}.pdf", dpi=150)
