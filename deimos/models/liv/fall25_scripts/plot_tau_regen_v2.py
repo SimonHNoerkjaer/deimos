@@ -11,7 +11,7 @@ detector = "IceCube"
 ra_deg = 0.
 dec_deg = +90. # Upgoing for IceCube
 time = REF_TIME
-a_magnitude = REF_SME_a_MAGNITUDE_eV
+a_magnitude = REF_SME_a_MAGNITUDE_eV*0.1
 c_magnitude = REF_SME_c_MAGNITUDE
 matter = "earth" # "earth" or "vacuum"
 
@@ -103,4 +103,4 @@ ax2.grid(True, alpha=0.3)
 
 fig.tight_layout()
 # Save the figure
-plt.savefig("tau_regeneration_flux_comparison.pdf", dpi=150)
+plt.savefig(f"tau_regeneration_flux_comparison_{a_magnitude:.1e}.pdf", dpi=150)
