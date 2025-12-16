@@ -76,11 +76,12 @@ if __name__ == "__main__":
         kw["energy_nodes_GeV"] = E_GeV
         kw["nusquids_variant"] = "sme"
 
-    matter = "vacuum" # "earth" or "vacuum"
+    matter = "earth" # "earth" or "vacuum"
 
     def setup_detector(detector_name):
         calculator = OscCalculator(solver=args.solver, atmospheric=True, **kw)
-        calculator.set_matter("vaccum")
+        # calculator.set_matter("vacuum")
+        calculator.set_matter("earth")
         calculator.set_detector(detector_name)
         return calculator
     
@@ -131,6 +132,9 @@ if __name__ == "__main__":
     # Title for the Plots
     fig.suptitle(fr"$E$ = {E_GeV*1e-3:.3g} TeV // Time: {time} // Matter: {matter.title()}")
 
+    #data storage dict with keys as (field_direction, detector)
+    data_dict = {}
+
     # Loop over directions
     for i, field_direction in enumerate(field_directions) :
         for j, detector in enumerate(detectors):
@@ -165,6 +169,9 @@ if __name__ == "__main__":
 
             print(f"Panel calculation time: {(time_module.time() - t_init) / 60.0:.2f} minutes")
 
+            # Store data in dictionary
+            data_dict[(field_direction, detector)] = P_detector
+
             #
             # Plotting
             #
@@ -192,7 +199,7 @@ if __name__ == "__main__":
             # first column (ylabel and SME label)
             if j == 0:
                 ax[i,j].set_ylabel("Declination [deg]")
-                ax[i,j].text(-0.4, 0.5, sme_label, transform=ax[i,j].transAxes, color="white", verticalalignment='center', bbox=dict(boxstyle='round', facecolor='black'))
+                ax[i,j].text(-0.4, 0.5, sme_label, transform=ax[i,j].transAxes,fontsize=14, color="white", verticalalignment='center', bbox=dict(boxstyle='round', facecolor='black'))
                 ax[i,j].set_yticklabels([ "%i"%t for t in dec_ticks ])
 
             # first row (detector name)
@@ -213,6 +220,10 @@ if __name__ == "__main__":
     # Mark LIV field direction   #TODO dynamic
     # ax[idx].plot(90, 0, markerfacecolor="gold", markeredgecolor="black", marker="D", markersize=7, linestyle="None")
 
+    # Save data dictionary
+    data_dict_str_keys = {str(k): v for k, v in data_dict.items()}
+    np.savez_compressed("sme_sidereal_direction_dependence_data_matter.npz", **data_dict_str_keys)
+    print("\nData saved to sme_sidereal_direction_dependence_data.npz")
 
     # Add colorbar 
     cbar = fig.colorbar(cmesh, ax=ax, shrink=1, pad=0.01, aspect=30)
@@ -220,6 +231,6 @@ if __name__ == "__main__":
 
    # Save the figure
     print("")
-    dump_figures_to_pdf( __file__.replace(".py","_" + args.solver + ".pdf") )
+    dump_figures_to_pdf( __file__.replace(".py","_" + args.solver + ".png") )
 
     # Done

@@ -40,7 +40,7 @@ matter = "earth" # "earth" or "vacuum"
 # state_osc_probs_std = data['state_osc_probs_std']
 # state_osc_probs_sme = data['state_osc_probs_sme']
 
-data = np.load('tau_regeneration_interp_results_10GeV.npz')
+data = np.load('tau_regeneration_interp_results_10GeV_500.npz')
 E_grid = data['E_grid']
 flux_nu_e = data['flux_nu_e']
 flux_nu_mu = data['flux_nu_mu']
@@ -97,7 +97,7 @@ ax1.set_ylabel(rf"$E^{E_power} \times \phi$  [GeV$^2$ cm$^{-2}$ s$^{-1}$ sr$^{-1
 ax1.set_xscale("log")
 ax1.set_yscale("log")
 ax1.set_title(f"Final Flux Comparison: Standard vs SME", fontsize=14)
-ax1.legend(fontsize=12)
+ax1.legend(fontsize=12, loc="lower left")
 ax1.grid(True, alpha=0.3)
 ax1.text(0.05, 1.2, f"(Det: {detector}, Dec: {dec_deg}°, Matter: {matter}, a_mag: {a_magnitude:.1e} eV, c_mag: {c_magnitude:.1e})", transform=ax1.transAxes, fontsize=12, verticalalignment='top')
 
@@ -114,12 +114,14 @@ ax2.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, label=r"$\nu_\tau$",
 ax2.plot(E_grid, ratio_total, linestyle="-", color="black", label=r"Total", linewidth=2, alpha=alpha)
 
 #add zoom-in ax for y=0 to 10
-ax2_zoom = ax2.inset_axes([0.66, 0.25, 0.32, 0.32])
+# ax2_zoom = ax2.inset_axes([0.66, 0.25, 0.32, 0.32])  # x , y , x_size, y_size
+ax2_zoom = ax2.inset_axes([0.57, 0.34, 0.4, 0.4])  # x , y , x_size, y_size
 ax2_zoom.plot(E_grid, ratio_e, linestyle="-", color=color_e, linewidth=2, alpha=alpha)
 ax2_zoom.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, linewidth=2, alpha=alpha)
 ax2_zoom.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, linewidth=2, alpha=alpha)
 ax2_zoom.plot(E_grid, ratio_total, linestyle="-", color="black", linewidth=2, alpha=alpha)
-ax2_zoom.set(ylim = (0, 20), xscale="log", ylabel=r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', title="Zoom-In")
+ax2_zoom.set(ylim = (0, 20), xscale="log", ylabel=r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$')
+ax2_zoom.set_title("Zoom-in",horizontalalignment="center", loc="left")
 ax2_zoom.set_xlabel("E (GeV)", labelpad=1)
 ax2_zoom.grid(True, alpha=0.3)
 # ax2.indicate_inset_zoom(ax2_zoom, edgecolor="gray")
@@ -129,15 +131,25 @@ ax2.set_ylabel(r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', fontsize=14)
 ax2.set_xlabel("E (GeV)", fontsize=14)
 ax2.set_xscale("log")
 # ax2.set_title("SME Effect on Final Flux", fontsize=14)
-ax2.legend(fontsize=12)
+ax2.legend(fontsize=12, loc="upper left")
 ax2.grid(True, alpha=0.3)
 
 # ticks fontsize
 for ax in [ax1, ax2]:
     ax.tick_params(axis='both', which='major', labelsize=12)
 
+
+#add text 
+# ax2.text(0.37,0.6, "Tau \nregen",  transform=ax2.transAxes,  horizontalalignment="center", color="#00691A", fontsize=13)#,bbox=dict(boxstyle="round,pad=0.2",alpha=0.6, fc='w', ec="#00691A", lw=1)) # verticalalignment='top'
+# ax2_zoom.text(0.38, 0.65, "MSW", transform=ax2_zoom.transAxes, color="#006cab", fontsize=12)#,bbox=dict(boxstyle="round,pad=0.3",alpha=1, fc='w', ec='k', lw=1)) # verticalalignment='top'
+# ax2.text(0.84,0.755, "High Energy\nLIV Oscillations", horizontalalignment="center" , transform=ax2.transAxes, color="#00691A", fontsize=12)
+
+ax2.text(0.37,0.6, "Tau \nregen",  transform=ax2.transAxes,  horizontalalignment="center", color="green", fontsize=13)#,bbox=dict(boxstyle="round,pad=0.2",alpha=0.6, fc='w', ec="#00691A", lw=1)) # verticalalignment='top'
+ax2_zoom.text(0.38, 0.65, "MSW", transform=ax2_zoom.transAxes, color="dodgerblue", fontsize=12)#,bbox=dict(boxstyle="round,pad=0.3",alpha=1, fc='w', ec='k', lw=1)) # verticalalignment='top'
+ax2.text(0.84,0.755, "High Energy\nLIV Oscillations", horizontalalignment="center" , transform=ax2.transAxes, color="green", fontsize=12)
+
 fig.tight_layout()
 
 
 # Save the figure
-plt.savefig(f"tau_regeneration_flux_comparison_interp_10GeV_small_{a_magnitude:.1e}_{c_magnitude:.1e}.pdf", dpi=150)
+plt.savefig(f"tau_regeneration_flux_comparison_interp_10GeV_text_{a_magnitude:.1e}_{c_magnitude:.1e}.pdf", dpi=150)

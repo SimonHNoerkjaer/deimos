@@ -104,11 +104,11 @@ if __name__ == "__main__":
 
         # Define "a" operator (magnitude and state texture)
         a_magnitude_eV = REF_SME_a_MAGNITUDE_eV
-        a_mu_eV = get_sme_state_matrix(p33=a_magnitude_eV*0.1) # Choosing 33 element as only non-zero element in germs of flavor
+        a_mu_eV = get_sme_state_matrix(p33=a_magnitude_eV*0) # Choosing 33 element as only non-zero element in germs of flavor
 
         # Define "c" operator (magnitude and state texture)
         c_magnitude = REF_SME_c_MAGNITUDE
-        c_t_nu = get_sme_state_matrix(p33=c_magnitude*0.) # Choosing 33 element as only non-zero element in germs of flavor
+        c_t_nu = get_sme_state_matrix(p33=c_magnitude) # Choosing 33 element as only non-zero element in germs of flavor
 
         # Choose direction (sticking to axis directions for simplicity here)
         liv_direction = "z" #  x y z

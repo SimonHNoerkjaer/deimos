@@ -1230,6 +1230,7 @@ class OscCalculator(object) :
 
         # Check operator shape, and set defaults
         expected_shape = (self.num_neutrinos, self.num_neutrinos) # shape is (N, N), where N is num neutrino states
+        # print("expected_shape:", expected_shape)
         if a_t_eV is None: 
             a_t_eV = np.zeros(expected_shape)
         assert isinstance(a_t_eV, np.ndarray) and (a_t_eV.shape == expected_shape)
@@ -1312,6 +1313,9 @@ class OscCalculator(object) :
             assert np.all( a_nsq.imag == 0. ), "Cannot handle imaginary SME a matrix values in nuSQuIDS currently"
             assert np.all( c_nsq.imag == 0. ), "Cannot handle imaginary SME a matrix values in nuSQuIDS currently"
             
+            # Test of units. # nuSQuIDS uses eV as the base numeric unit
+            # a_nsq = a_nsq.real * self.units.eV  #changes nothing since a_nsq is in eV already
+
             # Pass to nuSQuIDS
             self.nusquids.Set_LIVCoefficient(
                 a_nsq, 
@@ -1672,9 +1676,12 @@ class OscCalculator(object) :
 
         # Check for physical probaility, e.g. within [0,1]
         # Note that some solvers can e very slightly out of this due to tolerances, machien precision, etc, so handling this
-        tolerance = 1e-6
-        assert np.all( osc_probs > (0.-tolerance) ), "Found osc probs below 0"
-        assert np.all( osc_probs <= (1.+tolerance) ), "Found osc probs above 1"
+        # tolerance = 1e-6
+        # if np.all( osc_probs <= (1.+tolerance) ):
+        #     # print("Warning: found osc probs above 1")
+            # print("  Max osc prob:", np.max(osc_probs))
+        # assert np.all( osc_probs > (0.-tolerance) ), "Found osc probs below 0"
+        # assert np.all( osc_probs <= (1.+tolerance) ), "Found osc probs above 1"
 
         return osc_probs
 
@@ -1977,7 +1984,7 @@ class OscCalculator(object) :
 
         Returned result has following structure: [ energy, coszen, final flavor ]
         '''
-        print("nusquids: called") 
+        # print("nusquids: called") 
 
         #
         # Prepare

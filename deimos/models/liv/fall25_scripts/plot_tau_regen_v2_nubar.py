@@ -40,7 +40,7 @@ matter = "earth" # "earth" or "vacuum"
 # state_osc_probs_std = data['state_osc_probs_std']
 # state_osc_probs_sme = data['state_osc_probs_sme']
 
-data = np.load('tau_regeneration_interp_results_10GeV.npz')
+data = np.load('tau_regeneration_interp_results_10GeV_nubar.npz')
 E_grid = data['E_grid']
 flux_nu_e = data['flux_nu_e']
 flux_nu_mu = data['flux_nu_mu']
@@ -71,33 +71,32 @@ final_flux_sme = np.einsum('ei,eif->ef', initial_fluxes, state_osc_probs_sme)
 
 ############################## Plotting ###########################################
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.5, 8), sharex=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
 # Update color scheme
 color_e = "dodgerblue"
 color_mu = "red"
 color_tau = "green"
 alpha = 0.8
-E_power = 2
 
 # Plot 1: Final flux comparison (Standard vs SME)
-ax1.plot(E_grid, E_grid**E_power * final_flux_std[:, 0], linestyle="-", color=color_e, label=r"$\nu_e$ (Standard)", linewidth=2, alpha=alpha)
-ax1.plot(E_grid, E_grid**E_power * final_flux_std[:, 1], linestyle="-", color=color_mu, label=r"$\nu_\mu$ (Standard)", linewidth=2, alpha=alpha)
-ax1.plot(E_grid, E_grid**E_power * final_flux_std[:, 2], linestyle="-", color=color_tau, label=r"$\nu_\tau$ (Standard)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 0], linestyle="-", color=color_e, label=r"$\bar{\nu}_e$ (Standard)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 1], linestyle="-", color=color_mu, label=r"$\bar{\nu}_\mu$ (Standard)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_std[:, 2], linestyle="-", color=color_tau, label=r"$\bar{\nu}_\tau$ (Standard)", linewidth=2, alpha=alpha)
 #total flux
 # ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_std, axis=1), linestyle="-", color="black", label=r"Total (Standard)", linewidth=2, alpha=alpha)
 
-ax1.plot(E_grid, E_grid**E_power * final_flux_sme[:, 0], linestyle="--", color=color_e, label=r"$\nu_e$ (SME)", linewidth=2, alpha=alpha)
-ax1.plot(E_grid, E_grid**E_power * final_flux_sme[:, 1], linestyle="--", color=color_mu, label=r"$\nu_\mu$ (SME)", linewidth=2, alpha=alpha)
-ax1.plot(E_grid, E_grid**E_power * final_flux_sme[:, 2], linestyle="--", color=color_tau, label=r"$\nu_\tau$ (SME)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 0], linestyle="--", color=color_e, label=r"$\bar{\nu}_e$ (SME)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 1], linestyle="--", color=color_mu, label=r"$\bar{\nu}_\mu$ (SME)", linewidth=2, alpha=alpha)
+ax1.plot(E_grid, E_grid**3 * final_flux_sme[:, 2], linestyle="--", color=color_tau, label=r"$\bar{\nu}_\tau$ (SME)", linewidth=2, alpha=alpha)
 
 #total flux
 # ax1.plot(E_grid, E_grid**3 * np.sum(final_flux_sme, axis=1), linestyle="--", color="black", label=r"Total (SME)", linewidth=2, alpha=alpha)
 
-ax1.set_ylabel(rf"$E^{E_power} \times \phi$  [GeV$^2$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$]", fontsize=13)
+ax1.set_ylabel(r"$E^3 \times \phi$  [GeV$^2$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$]", fontsize=12)
 ax1.set_xscale("log")
 ax1.set_yscale("log")
 ax1.set_title(f"Final Flux Comparison: Standard vs SME", fontsize=14)
-ax1.legend(fontsize=12)
+ax1.legend(fontsize=11)
 ax1.grid(True, alpha=0.3)
 ax1.text(0.05, 1.2, f"(Det: {detector}, Dec: {dec_deg}°, Matter: {matter}, a_mag: {a_magnitude:.1e} eV, c_mag: {c_magnitude:.1e})", transform=ax1.transAxes, fontsize=12, verticalalignment='top')
 
@@ -107,10 +106,9 @@ ratio_mu = final_flux_sme[:, 1] / final_flux_std[:, 1]
 ratio_tau = final_flux_sme[:, 2] / final_flux_std[:, 2]
 ratio_total = np.sum(final_flux_sme, axis=1) / np.sum(final_flux_std, axis=1)
 
-ax2.plot(E_grid, ratio_e, linestyle="-", color=color_e, label=r"$\nu_e$", linewidth=2, alpha=alpha)
-ax2.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, label=r"$\nu_\mu$", linewidth=2, alpha=alpha)
-
-ax2.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, label=r"$\nu_\tau$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_e, linestyle="-", color=color_e, label=r"$\bar{\nu}_e$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_mu, linestyle="-", color=color_mu, label=r"$\bar{\nu}_\mu$", linewidth=2, alpha=alpha)
+ax2.plot(E_grid, ratio_tau, linestyle="-", color=color_tau, label=r"$\bar{\nu}_\tau$", linewidth=2, alpha=alpha)
 ax2.plot(E_grid, ratio_total, linestyle="-", color="black", label=r"Total", linewidth=2, alpha=alpha)
 
 #add zoom-in ax for y=0 to 10
@@ -125,19 +123,15 @@ ax2_zoom.grid(True, alpha=0.3)
 # ax2.indicate_inset_zoom(ax2_zoom, edgecolor="gray")
 
 ax2.axhline(1.0, color='black', linestyle='--', alpha=0.5, linewidth=1)
-ax2.set_ylabel(r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', fontsize=14)
-ax2.set_xlabel("E (GeV)", fontsize=14)
+ax2.set_ylabel(r'$\phi_{\text{SME}}$ / $\phi_{\text{Standard}}$', fontsize=12)
+ax2.set_xlabel("E (GeV)", fontsize=12)
 ax2.set_xscale("log")
 # ax2.set_title("SME Effect on Final Flux", fontsize=14)
-ax2.legend(fontsize=12)
+ax2.legend(fontsize=11)
 ax2.grid(True, alpha=0.3)
-
-# ticks fontsize
-for ax in [ax1, ax2]:
-    ax.tick_params(axis='both', which='major', labelsize=12)
 
 fig.tight_layout()
 
 
 # Save the figure
-plt.savefig(f"tau_regeneration_flux_comparison_interp_10GeV_small_{a_magnitude:.1e}_{c_magnitude:.1e}.pdf", dpi=150)
+plt.savefig(f"tau_regeneration_flux_comparison_interp_10GeV_nubar_{a_magnitude:.1e}_{c_magnitude:.1e}.pdf", dpi=150)

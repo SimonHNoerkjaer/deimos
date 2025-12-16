@@ -100,7 +100,7 @@ def value_spacing_is_linear(values) :
     return np.all(np.isclose(diff, diff[0]))
 
 
-def plot_colormap(ax, x, y, z, zlabel=None, **kw) :
+def plot_colormap(ax, x, y, z, zlabel=None, cbar=True, **kw) :
     '''
     Plot a 2D colormap
     '''
@@ -123,7 +123,8 @@ def plot_colormap(ax, x, y, z, zlabel=None, **kw) :
 
     # Add colorbar
     fig = ax.get_figure()
-    cbar = fig.colorbar(cmesh, ax=ax, label=zlabel)
+    if cbar :
+        cbar = fig.colorbar(cmesh, ax=ax, label=zlabel)
 
 
 

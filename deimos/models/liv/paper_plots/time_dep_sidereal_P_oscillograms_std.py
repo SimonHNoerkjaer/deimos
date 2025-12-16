@@ -14,7 +14,7 @@ from deimos.utils.oscillations import * #calc_path_length_from_coszen, get_cosze
 from deimos.utils.coordinates import * #get_right_ascension_and_declination
 from deimos.utils.constants import * 
 from deimos.models.liv.sme import get_sme_state_matrix
-
+import concurrent.futures
 #
 # Main
 #
@@ -39,11 +39,12 @@ if __name__ == "__main__" :
     nubar = False             # neutrino or antineutrino
 
     E_GeV = 10000.
+    E_GeV = 10.
 
     atmospheric = True
     sme_basis = "mass"
 
-    a_magnitude_eV = 2e-13 # Overall strength of a component
+    a_magnitude_eV = 0#2e-13 # Overall strength of a component
     c_magnitude = 0#e-26 # Overall strength of c component
     
 
@@ -156,7 +157,19 @@ if __name__ == "__main__" :
     Off_axis_DEC_mantle = np.zeros((len(azimuth),len(daytimes)))
     Off_axis_RA_mantle = np.zeros((len(azimuth),len(daytimes)))
 
-
+    def calc_point(args):
+        i, j, dec_rad, ra_rad, time, initial_flavor, nubar, E_GeV, sme_params, Off_axis_calculator = args
+        calc_kw = {
+            "initial_flavor": initial_flavor,
+            "nubar": nubar,
+            "energy_GeV": E_GeV,
+            "ra_rad": ra_rad,
+            "dec_rad": dec_rad,
+            "time": time,
+            "sme_params": sme_params,
+        }
+        P_Off_axis_results, coszen_values_Off_axis, _ = Off_axis_calculator.calc_osc_prob_sme_directional_atmospheric(**calc_kw)
+        return (i, j, P_Off_axis_results, coszen_values_Off_axis)
 
     t_init = time_module.time()
 
@@ -189,58 +202,76 @@ if __name__ == "__main__" :
         Off_axis_RA_mantle[:,time_index] = Off_axis_RA_mantle[Off_axis_indices,time_index]
         Off_axis_DEC_mantle[:,time_index] = Off_axis_DEC_mantle[Off_axis_indices,time_index]
 
-
+        args_list = []
         # Loop over dec
         for i , dec_rad in enumerate(dec_values_rad) : 
 
             # Loop over RA
             for j, ra_rad in enumerate(ra_values_rad) :
 
-                # Calculation timing, estimation and progress
-                if i==0 and j==0:
-                    start_time = time_module.time()
-                    t = 0
-                t += 1
-
-                print("Progress: %0.2f%%" % (100.*(i*len(ra_values_rad)+j)/(len(dec_values_rad)*len(ra_values_rad))), end="\r")
+                args_list.append((i, j, dec_rad, ra_rad, time, initial_flavor, nubar, E_GeV, sme_params, Off_axis_calculator))
 
 
+                # # Calculation timing, estimation and progress
+                # if i==0 and j==0:
+                #     start_time = time_module.time()
+                #     t = 0
+                # t += 1
 
-                # Define args to osc prob calc
-                calc_kw = {
-                    "initial_flavor":initial_flavor,
-                    "nubar" : nubar,
-                    "energy_GeV":E_GeV,
-                    "ra_rad":ra_rad,
-                    "dec_rad":dec_rad,
-                    "time":time,
-                    "sme_params":sme_params,
-                }
-
-                P_Off_axis_results, coszen_values_Off_axis, azimuth_values_Off_axis = Off_axis_calculator.calc_osc_prob_sme_directional_atmospheric(**calc_kw)
+                # print("Progress: %0.2f%%" % (100.*(i*len(ra_values_rad)+j)/(len(dec_values_rad)*len(ra_values_rad))), end="\r")
 
 
-                # Save probabilities
 
-                P_Off_axis[0,i,j,time_index] = P_Off_axis_results[0]
-                P_Off_axis[1,i,j,time_index] = P_Off_axis_results[1]
-                P_Off_axis[2,i,j,time_index] = P_Off_axis_results[2]
+                # # Define args to osc prob calc
+                # calc_kw = {
+                #     "initial_flavor":initial_flavor,
+                #     "nubar" : nubar,
+                #     "energy_GeV":E_GeV,
+                #     "ra_rad":ra_rad,
+                #     "dec_rad":dec_rad,
+                #     "time":time,
+                #     "sme_params":sme_params,
+                # }
+
+                # P_Off_axis_results, coszen_values_Off_axis, azimuth_values_Off_axis = Off_axis_calculator.calc_osc_prob_sme_directional_atmospheric(**calc_kw)
+
+
+                # # Save probabilities
+
+                # P_Off_axis[0,i,j,time_index] = P_Off_axis_results[0]
+                # P_Off_axis[1,i,j,time_index] = P_Off_axis_results[1]
+                # P_Off_axis[2,i,j,time_index] = P_Off_axis_results[2]
         
 
-                # Check that probabilities sum to 1
-                assert np.isclose( np.sum(P_Off_axis[:,i,j,time_index]), 1.0, atol=1e-10)
+                # # Check that probabilities sum to 1
+                # assert np.isclose( np.sum(P_Off_axis[:,i,j,time_index]), 1.0, atol=1e-10)
                 
-                # Save coszen values
-                cosz_Off_axis[i,j,time_index] = coszen_values_Off_axis
+                # # Save coszen values
+                # cosz_Off_axis[i,j,time_index] = coszen_values_Off_axis
 
-                # Timing
-                if t== 100:
-                    delta_time = (time_module.time() - start_time)/100.
-                    print("Calculation time for one iteration: %0.4f seconds" % delta_time)
-                    print("Total calculation time estimate: %0.2f minutes" % (delta_time*len(dec_values_deg)*len(ra_values_deg)/60.))
+    #             # Timing
+    #             if t== 100:
+    #                 delta_time = (time_module.time() - start_time)/100.
+    #                 print("Calculation time for one iteration: %0.4f seconds" % delta_time)
+    #                 print("Total calculation time estimate: %0.2f minutes" % (delta_time*len(dec_values_deg)*len(ra_values_deg)/60.))
 
-    print("Total calculation time: %0.2f minutes" % ((time_module.time()-t_init)/60.) )
 
+        
+            # Run in parallel
+        # with concurrent.futures.ProcessPoolExecutor() as executor:
+        #     for result in executor.map(calc_point, args_list):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for result in executor.map(calc_point, args_list):
+                i, j, P_Off_axis_results, coszen_values_Off_axis = result
+                P_Off_axis[0, i, j, time_index] = P_Off_axis_results[0]
+                P_Off_axis[1, i, j, time_index] = P_Off_axis_results[1]
+                P_Off_axis[2, i, j, time_index] = P_Off_axis_results[2]
+                cosz_Off_axis[i, j, time_index] = coszen_values_Off_axis
+        print(f"Completed time index {time_index+1} / {len(daytimes)}")
+
+    elapsed = time_module.time() - t_init
+    minutes, seconds = divmod(elapsed, 60)
+    print(f"Total calculation time: {int(minutes)} min {int(seconds)} sec")
 
     # Convert RA/DEC to degrees
     Off_axis_RA_horizon = np.rad2deg(Off_axis_RA_horizon)
@@ -280,7 +311,7 @@ if __name__ == "__main__" :
         ax[time_index].plot(Off_axis_RA_outer_core[:,time_index],Off_axis_DEC_outer_core[:,time_index],color="orange",alpha=alpha,marker=marker,ms=markersize,linestyle="None")#,label="Earth outer core")
         ax[time_index].plot(Off_axis_RA_mantle[:,time_index],Off_axis_DEC_mantle[:,time_index],color="yellow",alpha=alpha,marker=marker,ms=markersize,linestyle="None")#, label="Earth mantle")
  
-        ax[time_index].plot(direction_dec,0, markerfacecolor="gold", markeredgecolor="black", marker="D", markersize=6, linestyle="None")#, label="LIV-field direction")
+        # ax[time_index].plot(direction_dec,0, markerfacecolor="gold", markeredgecolor="black", marker="D", markersize=6, linestyle="None")#, label="LIV-field direction")
         #add the time as text on the plot
         ax[time_index].text(0.05, 0.95, time.replace("July 16, 1999, ","")+" UTC", transform=ax[time_index].transAxes, fontsize=14,color="white", verticalalignment='top', bbox=dict(boxstyle='round', facecolor='black', alpha=0.5))
         ax[time_index].tick_params(axis='both', which='major', labelsize=14)
@@ -293,7 +324,7 @@ if __name__ == "__main__" :
     ax[3].plot(Off_axis_RA_outer_core[:,3],Off_axis_DEC_outer_core[:,3],color="orange",alpha=alpha,marker=marker,ms=markersize,linestyle="None",label="Earth outer core")
     ax[3].plot(Off_axis_RA_mantle[:,3],Off_axis_DEC_mantle[:,3],color="yellow",alpha=alpha,marker=marker,ms=markersize,linestyle="None", label="Earth mantle")
 
-    ax[3].plot(direction_dec,0, markerfacecolor="gold", markeredgecolor="black", marker="D", markersize=6, linestyle="None", label="LIV-field direction")
+    # ax[3].plot(direction_dec,0, markerfacecolor="gold", markeredgecolor="black", marker="D", markersize=6, linestyle="None", label="LIV-field direction")
     ax[3].tick_params(axis='both', which='major', labelsize=14)
     ax[2].set_xticks([0,90,180,270,360])
     ax[3].set_xticks([0,90,180,270,360])
@@ -328,15 +359,19 @@ if __name__ == "__main__" :
     egend_handeles, legend_labels = ax[3].get_legend_handles_labels()
     #only use one icon for the legend
     manuallist = [
-                plt.Line2D([0], [0], color='gold', marker='D', linestyle='None', markersize=7, markeredgewidth=0.1, markeredgecolor="black"),
+                # plt.Line2D([0], [0], color='gold', marker='D', linestyle='None', markersize=7, markeredgewidth=0.1, markeredgecolor="black"),
                 plt.Line2D([0], [0], color='lime', marker='None',  markersize=10, markeredgewidth=0.0, linewidth=linewidth),
                 plt.Line2D([0], [0], color='yellow', marker='None', linestyle='-', markersize=10, linewidth=linewidth),
                 plt.Line2D([0], [0], color='orange', marker='None',  markersize=10, markeredgewidth=0.0, linewidth=linewidth),
                 plt.Line2D([0], [0], color='red', marker='None', linestyle='-', markersize=10, linewidth=linewidth)]
                 # plt.Line2D([0], [0], color='r', marker='None',  markersize=10, markeredgewidth=0.0)]
-    legend_handeles = [manuallist[0], manuallist[1], manuallist[2], manuallist[3], manuallist[4]]#, manuallist[5]]
+    # legend_handeles = [manuallist[0], manuallist[1], manuallist[2], manuallist[3], manuallist[4]]#, manuallist[5]]
+    legend_handeles = [manuallist[0], manuallist[1], manuallist[2], manuallist[3]]#, manuallist[4]]#, manuallist[5]]
     legend_labels = ["LIV-field direction","Horizon","Mantle", "Outer Core", "Inner Core"]#,  r'$\sigma$ contour']
-    lgnd = ax[3].legend(legend_handeles, legend_labels, fontsize=13, loc=(-1.2,2.10), ncol=5, handlelength=0.6,fancybox=True)#, shadow=True)
+    legend_labels = ["Horizon","Mantle", "Outer Core", "Inner Core"]#,  r'$\sigma$ contour']
+    # lgnd = ax[3].legend(legend_handeles, legend_labels, fontsize=13, loc=(-1.2,2.10), ncol=5, handlelength=0.6,fancybox=True)#, shadow=True)
+    lgnd = ax[3].legend(legend_handeles, legend_labels, fontsize=13, loc=(-0.85,2.10), ncol=4, handlelength=0.6,fancybox=True)#, shadow=True)
+
     # fig.tight_layout()
 
 
@@ -383,13 +418,15 @@ if __name__ == "__main__" :
 
 
 
-
+    # ax[3].text(0,4.3 , "")
 
 
 
     #
     # Done
     #
+    # fig.tight_layout()
+    plt.savefig(__file__.replace(".py","_STD10gev_" + solver + ".png"), bbox_extra_artists=[cbar_ax, lgnd])
 
     print("")
-    dump_figures_to_pdf( __file__.replace(".py","_" + solver + ".pdf") )
+    # dump_figures_to_pdf( __file__.replace(".py","_STD10gev_" + solver + ".pdf") )
